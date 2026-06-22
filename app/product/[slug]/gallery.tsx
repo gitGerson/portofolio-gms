@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { ProductImage } from "@/app/components/product-image";
+import {
+  dialogEnter,
+  dialogTransition,
+  heroEnter,
+  pageTransition,
+  quickTransition,
+} from "@/app/components/motion/presets";
 import { productImageUrl } from "@/lib/images";
 
 /**
@@ -39,7 +47,13 @@ export function Gallery({
 
   return (
     <div className="bg-white md:flex-1">
-      <div className="hero-rise relative mx-4 mt-4 h-60 overflow-hidden rounded-[18px] md:mx-0 md:h-[420px]">
+      <motion.div
+        variants={heroEnter}
+        initial="hidden"
+        animate="show"
+        transition={pageTransition}
+        className="relative mx-4 mt-4 h-60 overflow-hidden rounded-[18px] md:mx-0 md:h-[420px]"
+      >
         <button
           type="button"
           onClick={() => canZoom && setZoom(true)}
@@ -65,7 +79,7 @@ export function Gallery({
             Ketuk untuk perbesar
           </span>
         ) : null}
-      </div>
+      </motion.div>
 
       {/* Thumbnail strip (single image for now) */}
       {fullUrl ? (
@@ -83,18 +97,27 @@ export function Gallery({
       ) : null}
 
       {/* Lightbox */}
-      {zoom && fullUrl ? (
-        <div
+      <AnimatePresence>
+        {zoom && fullUrl ? (
+        <motion.div
           className="fixed inset-0 z-[75] flex items-center justify-center bg-ink/85 p-4"
           onClick={() => setZoom(false)}
           role="dialog"
           aria-modal="true"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={quickTransition}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <motion.img
             src={fullUrl}
             alt={name}
-            className="dialog-in max-h-full max-w-full rounded-xl object-contain"
+            variants={dialogEnter}
+            initial="hidden"
+            animate="show"
+            exit="exit"
+            transition={dialogTransition}
+            className="max-h-full max-w-full rounded-xl object-contain"
           />
           <button
             type="button"
@@ -104,8 +127,9 @@ export function Gallery({
           >
             ✕
           </button>
-        </div>
-      ) : null}
+        </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }

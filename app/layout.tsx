@@ -7,6 +7,7 @@ import { ToastProvider } from "./components/ui/toast";
 import { ConfirmProvider } from "./components/ui/confirm-dialog";
 import { CartDrawer } from "./components/cart-drawer";
 import { TopProgress } from "./components/top-progress";
+import { MotionProvider } from "./components/motion/motion-provider";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -37,17 +38,19 @@ export default function RootLayout({
       className={`${jakarta.variable} ${spaceMono.variable} h-full`}
     >
       <body className="min-h-full bg-paper text-ink antialiased">
-        <ToastProvider>
-          <ConfirmProvider>
-            <CartProvider>
-              <CartUIProvider>
-                <TopProgress />
-                {children}
-                <CartDrawer />
-              </CartUIProvider>
-            </CartProvider>
-          </ConfirmProvider>
-        </ToastProvider>
+        <MotionProvider>
+          <ToastProvider>
+            <ConfirmProvider>
+              <CartProvider>
+                <CartUIProvider>
+                  <TopProgress />
+                  {children}
+                  <CartDrawer />
+                </CartUIProvider>
+              </CartProvider>
+            </ConfirmProvider>
+          </ToastProvider>
+        </MotionProvider>
       </body>
     </html>
   );

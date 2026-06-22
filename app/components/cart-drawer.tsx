@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { useCart } from "@/lib/cart-context";
 import { useCartUI } from "@/lib/cart-ui-context";
 import { formatRupiah } from "@/lib/format";
 import { ProductImage } from "./product-image";
 import { PlusIcon, MinusIcon, TrashIcon, BagIcon } from "./icons";
+import { pageTransition, quickTransition } from "./motion/presets";
 
 /** Slide-over cart panel, opened on add-to-cart and via the cart icons. */
 export function CartDrawer() {
@@ -29,25 +31,28 @@ export function CartDrawer() {
   }, [open, closeCart]);
 
   return (
-    <div
-      className={`fixed inset-0 z-[55] ${open ? "" : "pointer-events-none"}`}
-      aria-hidden={!open}
-    >
-      {/* Overlay */}
-      <div
-        onClick={closeCart}
-        className={`absolute inset-0 bg-ink/40 transition-opacity duration-300 motion-reduce:transition-none ${
-          open ? "opacity-100" : "opacity-0"
-        }`}
-      />
-      {/* Panel */}
-      <aside
-        className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-paper shadow-2xl transition-transform duration-300 ease-out motion-reduce:transition-none ${
-          open ? "translate-x-0" : "translate-x-full"
-        }`}
-        role="dialog"
-        aria-label="Keranjang"
-      >
+    <AnimatePresence>
+      {open ? (
+        <div className="fixed inset-0 z-[55]">
+          {/* Overlay */}
+          <motion.div
+            onClick={closeCart}
+            className="absolute inset-0 bg-ink/40"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={quickTransition}
+          />
+          {/* Panel */}
+          <motion.aside
+            className="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-paper shadow-2xl"
+            role="dialog"
+            aria-label="Keranjang"
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={pageTransition}
+          >
         <div className="flex items-center justify-between border-b border-line bg-white px-5 py-4">
           <h2 className="text-base font-extrabold text-ink">
             Keranjang{count > 0 ? ` · ${count}` : ""}
@@ -174,7 +179,9 @@ export function CartDrawer() {
             </div>
           </>
         )}
-      </aside>
-    </div>
+          </motion.aside>
+        </div>
+      ) : null}
+    </AnimatePresence>
   );
 }

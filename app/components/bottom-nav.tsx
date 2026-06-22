@@ -6,6 +6,7 @@ import { useCart } from "@/lib/cart-context";
 import { useCartUI } from "@/lib/cart-ui-context";
 import type { Category } from "@/lib/data/types";
 import { HomeIcon, GridIcon, BagIcon, UserIcon } from "./icons";
+import { MotionBadge } from "./motion/motion-badge";
 
 /** Mobile-only bottom tab bar. */
 export function BottomNav({ categories }: { categories: Category[] }) {
@@ -41,12 +42,12 @@ export function BottomNav({ categories }: { categories: Category[] }) {
       <button type="button" onClick={openCart} className={navClass(false)}>
         <BagIcon size={20} />
         {count > 0 ? (
-          <span
+          <MotionBadge
             key={count}
-            className="badge-bump absolute -right-2 -top-1 flex h-[15px] min-w-[15px] items-center justify-center rounded-full bg-gold px-1 text-[9px] font-extrabold text-ink"
+            className="absolute -right-2 -top-1 flex h-[15px] min-w-[15px] items-center justify-center rounded-full bg-gold px-1 text-[9px] font-extrabold text-ink"
           >
             {count}
-          </span>
+          </MotionBadge>
         ) : null}
         <span className={labelClass(false)}>Keranjang</span>
       </button>

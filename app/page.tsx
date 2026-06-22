@@ -66,7 +66,7 @@ export default async function HomePage() {
                 Lihat semua
               </Link>
             </div>
-            <div className="grid grid-cols-3 gap-3 md:grid-cols-6">
+            <div className="grid grid-cols-3 gap-3 md:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
               {categories.map((cat, i) => (
                 <Link
                   key={cat.slug}
@@ -105,7 +105,7 @@ export default async function HomePage() {
               Belum ada produk promo.
             </p>
           )}
-          <div className="hidden grid-cols-4 gap-[18px] md:grid">
+          <div className="hidden grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-[18px] md:grid">
             {featured.map((p, i) => (
               <ProductCard key={p.slug} product={p} priority={i < 4} />
             ))}

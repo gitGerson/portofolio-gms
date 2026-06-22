@@ -22,7 +22,7 @@ export function ProductCardSkeleton() {
 /** Approximate storefront chrome (header) wrapping a skeleton body. */
 export function SkeletonShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto min-h-dvh max-w-[1280px] bg-paper">
+    <div className="min-h-dvh w-full bg-paper">
       {/* Mobile header */}
       <div className="bg-forest px-[18px] pb-[18px] pt-2.5 md:hidden">
         <div className="flex items-center gap-3">

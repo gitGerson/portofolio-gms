@@ -1,5 +1,6 @@
 import { Header } from "./header";
 import { BottomNav } from "./bottom-nav";
+import { Footer } from "./footer";
 import { WaFab } from "./wa-fab";
 import { getCategories } from "@/lib/data/categories";
 import type { Category } from "@/lib/data/types";
@@ -22,9 +23,10 @@ export async function ShopShell({
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-[1280px] flex-col bg-paper">
+    <div className="flex min-h-dvh w-full flex-col bg-paper">
       <Header active={active} categories={categories} />
       <main className="flex-1">{children}</main>
+      <Footer categories={categories} />
       <BottomNav categories={categories} />
       {showFab ? <WaFab /> : null}
     </div>

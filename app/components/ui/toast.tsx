@@ -8,7 +8,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { CheckIcon } from "../icons";
+import { quickTransition, toastEnter } from "../motion/presets";
 
 type ToastTone = "success" | "error" | "info";
 type Toast = { id: number; message: string; tone: ToastTone };
@@ -41,21 +43,28 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       <div className="pointer-events-none fixed inset-x-0 bottom-4 z-[60] flex flex-col items-center gap-2 px-4 md:bottom-6">
-        {toasts.map((t) => (
-          <div
-            key={t.id}
-            role="status"
-            onClick={() => remove(t.id)}
-            className="toast-in pointer-events-auto flex max-w-sm items-center gap-2.5 rounded-xl border border-line bg-ink px-4 py-3 text-sm font-semibold text-white shadow-lg"
-          >
-            {t.tone === "success" ? (
-              <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-ready text-white">
-                <CheckIcon size={13} strokeWidth={3} />
-              </span>
-            ) : null}
-            <span>{t.message}</span>
-          </div>
-        ))}
+        <AnimatePresence>
+          {toasts.map((t) => (
+            <motion.div
+              key={t.id}
+              role="status"
+              onClick={() => remove(t.id)}
+              variants={toastEnter}
+              initial="hidden"
+              animate="show"
+              exit="exit"
+              transition={quickTransition}
+              className="pointer-events-auto flex max-w-sm items-center gap-2.5 rounded-xl border border-line bg-ink px-4 py-3 text-sm font-semibold text-white shadow-lg"
+            >
+              {t.tone === "success" ? (
+                <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-ready text-white">
+                  <CheckIcon size={13} strokeWidth={3} />
+                </span>
+              ) : null}
+              <span>{t.message}</span>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </ToastContext.Provider>
   );

@@ -3,6 +3,7 @@
 import { useCart } from "@/lib/cart-context";
 import { useCartUI } from "@/lib/cart-ui-context";
 import { BagIcon } from "./icons";
+import { MotionBadge } from "./motion/motion-badge";
 
 export function CartCount({
   variant = "dark",
@@ -25,14 +26,14 @@ export function CartCount({
     >
       <BagIcon size={19} />
       {count > 0 ? (
-        <span
+        <MotionBadge
           key={count}
-          className={`badge-bump absolute -right-1.5 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 px-1 text-[10px] font-extrabold text-ink ${
+          className={`absolute -right-1.5 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 px-1 text-[10px] font-extrabold text-ink ${
             light ? "border-forest bg-gold" : "border-white bg-gold"
           }`}
         >
           {count}
-        </span>
+        </MotionBadge>
       ) : null}
     </button>
   );

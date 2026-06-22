@@ -82,7 +82,7 @@ export function Header({
             </Link>
           ))}
         </nav>
-        <div className="ml-auto max-w-[380px] flex-1">
+        <div className="ml-auto max-w-[520px] flex-1 xl:max-w-[680px]">
           <SearchBox placeholder="Cari produk…" variant="dark" />
         </div>
         <div className="flex gap-3">
