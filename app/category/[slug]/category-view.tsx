@@ -129,6 +129,16 @@ export function CategoryView({
           <aside className="hidden w-[236px] flex-none md:block">
             <h3 className="mb-3 text-sm font-extrabold text-ink">Kategori</h3>
             <div className="mb-6 flex flex-col gap-0.5">
+              <Link
+                href="/category"
+                className={`rounded-[9px] px-[11px] py-[7px] text-[13.5px] ${
+                  categorySlug === "__all__"
+                    ? "bg-[#eaf2ee] font-bold text-forest"
+                    : "text-muted hover:text-forest"
+                }`}
+              >
+                Semua Produk
+              </Link>
               {categories.map((c) => (
                 <Link
                   key={c.slug}

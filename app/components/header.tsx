@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { STORE } from "@/lib/products";
-import type { Category } from "@/lib/data/types";
 import { UserIcon } from "./icons";
 import { CartCount } from "./cart-count";
 import { SearchBox } from "./search-box";
@@ -12,15 +11,12 @@ import { SearchBox } from "./search-box";
  */
 export function Header({
   active,
-  categories,
 }: {
   active?: string;
-  categories: Category[];
 }) {
-  const categoryHref = categories[0] ? `/category/${categories[0].slug}` : "/";
   const nav = [
     { label: "Beranda", href: "/" },
-    { label: "Kategori", href: categoryHref },
+    { label: "Kategori", href: "/category" },
     { label: "Promo", href: "/" },
     { label: "Tentang", href: "/" },
   ];

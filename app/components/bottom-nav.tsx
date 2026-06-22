@@ -4,16 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { useCartUI } from "@/lib/cart-ui-context";
-import type { Category } from "@/lib/data/types";
 import { HomeIcon, GridIcon, BagIcon, UserIcon } from "./icons";
 import { MotionBadge } from "./motion/motion-badge";
 
 /** Mobile-only bottom tab bar. */
-export function BottomNav({ categories }: { categories: Category[] }) {
+export function BottomNav() {
   const pathname = usePathname();
   const { count } = useCart();
   const { openCart } = useCartUI();
-  const categoryHref = categories[0] ? `/category/${categories[0].slug}` : "/";
 
   const navClass = (active: boolean) =>
     `relative flex flex-col items-center gap-[3px] ${
@@ -30,7 +28,7 @@ export function BottomNav({ categories }: { categories: Category[] }) {
       </Link>
 
       <Link
-        href={categoryHref}
+        href="/category"
         className={navClass(pathname.startsWith("/category"))}
       >
         <GridIcon size={20} />

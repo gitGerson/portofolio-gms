@@ -60,7 +60,7 @@ export default async function HomePage() {
                 Kategori
               </h2>
               <Link
-                href={`/category/${categories[0].slug}`}
+                href="/category"
                 className="text-xs font-semibold text-forest"
               >
                 Lihat semua

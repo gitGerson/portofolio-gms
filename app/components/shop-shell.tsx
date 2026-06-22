@@ -24,10 +24,10 @@ export async function ShopShell({
 
   return (
     <div className="flex min-h-dvh w-full flex-col bg-paper">
-      <Header active={active} categories={categories} />
+      <Header active={active} />
       <main className="flex-1">{children}</main>
       <Footer categories={categories} />
-      <BottomNav categories={categories} />
+      <BottomNav />
       {showFab ? <WaFab /> : null}
     </div>
   );
