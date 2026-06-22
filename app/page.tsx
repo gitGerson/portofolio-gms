@@ -1,65 +1,117 @@
-import Image from "next/image";
+import Link from "next/link";
+import { ShopShell } from "./components/shop-shell";
+import { ProductCard } from "./components/product-card";
+import { Placeholder } from "./components/placeholder";
+import { getCategories } from "@/lib/data/categories";
+import { getPromos, getFeatured } from "@/lib/data/products";
+import type { Category } from "@/lib/data/types";
 
-export default function Home() {
+// Catalog is admin-editable; ISR keeps navigation fast and revalidates on edits
+// (admin write actions call revalidatePath). Reads use the cookie-less public client.
+export const revalidate = 60;
+
+export default async function HomePage() {
+  const [categories, promos, featured] = await Promise.all([
+    getCategories().catch((): Category[] => []),
+    getPromos().catch(() => []),
+    getFeatured().catch(() => []),
+  ]);
+
+  const shopHref = categories[2]
+    ? `/category/${categories[2].slug}`
+    : categories[0]
+      ? `/category/${categories[0].slug}`
+      : "/";
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <ShopShell active="Beranda">
+      <div className="px-[18px] pt-[18px] md:px-10 md:pt-7">
+        {/* Hero banner */}
+        <section className="relative flex h-[142px] flex-col justify-center overflow-hidden rounded-[20px] bg-forest-dark px-5 text-white md:h-[208px] md:px-11">
+          <div className="absolute -right-8 -top-8 h-[130px] w-[130px] rounded-full bg-gold/20 md:h-[260px] md:w-[260px]" />
+          <Placeholder
+            tag="product shot"
+            className="absolute right-3.5 bottom-3.5 hidden h-16 w-16 rounded-[14px] md:right-12 md:top-1/2 md:bottom-auto md:flex md:h-[150px] md:w-[150px] md:-translate-y-1/2 md:rounded-[18px]"
+          />
+          <div className="relative max-w-[200px] md:max-w-[560px]">
+            <div className="font-mono text-[10px] font-bold tracking-[0.14em] text-gold md:text-xs md:tracking-[0.16em]">
+              PROMO MINGGU INI
+            </div>
+            <h1 className="mt-1.5 text-[22px] font-extrabold leading-tight md:mt-2.5 md:text-4xl">
+              Diskon s/d 30% charger &amp; kabel
+            </h1>
+            <div className="mt-1.5 text-xs text-[#a8cdba] md:hidden">
+              Berlaku terbatas
+            </div>
+            <Link
+              href={shopHref}
+              className="mt-4 hidden h-11 items-center rounded-xl bg-gold px-[22px] text-sm font-bold text-ink md:inline-flex"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+              Belanja Sekarang
+            </Link>
+          </div>
+        </section>
+
+        {/* Categories */}
+        {categories.length > 0 ? (
+          <section className="mt-[22px] md:mt-[26px]">
+            <div className="mb-3.5 flex items-center justify-between px-0.5">
+              <h2 className="text-base font-bold text-ink md:text-lg">
+                Kategori
+              </h2>
+              <Link
+                href={`/category/${categories[0].slug}`}
+                className="text-xs font-semibold text-forest"
+              >
+                Lihat semua
+              </Link>
+            </div>
+            <div className="grid grid-cols-3 gap-3 md:grid-cols-6">
+              {categories.map((cat, i) => (
+                <Link
+                  key={cat.slug}
+                  href={`/category/${cat.slug}`}
+                  className={`rounded-[15px] border p-3 text-center md:flex md:items-center md:gap-3 md:p-4 md:text-left ${
+                    i === 2
+                      ? "border-forest bg-forest text-white"
+                      : "border-line bg-white text-ink"
+                  }`}
+                >
+                  <Placeholder className="mb-2 h-12 rounded-[10px] md:mb-0 md:h-[46px] md:w-[46px] md:flex-none md:rounded-[11px]" />
+                  <span className="text-[11.5px] font-semibold leading-tight md:text-sm md:font-bold">
+                    {cat.name}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {/* Promo products (mobile) / Featured (desktop) */}
+        <section className="mb-8 mt-6 md:mb-10 md:mt-[30px]">
+          <div className="mb-3.5 flex items-center justify-between px-0.5">
+            <h2 className="text-base font-bold text-ink md:text-lg">
+              Promo Hari Ini
+            </h2>
+          </div>
+          {promos.length > 0 ? (
+            <div className="grid grid-cols-2 gap-3 md:hidden">
+              {promos.map((p, i) => (
+                <ProductCard key={p.slug} product={p} priority={i < 2} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted md:hidden">
+              Belum ada produk promo.
+            </p>
+          )}
+          <div className="hidden grid-cols-4 gap-[18px] md:grid">
+            {featured.map((p, i) => (
+              <ProductCard key={p.slug} product={p} priority={i < 4} />
+            ))}
+          </div>
+        </section>
+      </div>
+    </ShopShell>
   );
 }

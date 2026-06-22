@@ -1,26 +1,180 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4f2ec;
+  --foreground: #13231b;
 }
 
 @theme inline {
+  /* Brand palette — Forest · Gold · Ink · Paper */
+  --color-paper: #f4f2ec;
+  --color-board: #e3e1da;
+  --color-forest: #114b39;
+  --color-forest-dark: #0e3f2f;
+  --color-gold: #c79434;
+  --color-ink: #13231b;
+
+  /* Supporting tones */
+  --color-muted: #5b685f;
+  --color-faint: #9aa39c;
+  --color-line: #eae7de;
+  --color-line-strong: #e4e0d6;
+
+  /* Status */
+  --color-ready: #1f8a5b;
+  --color-ready-bg: #e3f3ea;
+  --color-danger: #b23b3b;
+  --color-danger-bg: #f6e3e3;
+  --color-wa: #1f8a5b;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-jakarta);
+  --font-mono: var(--font-space-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-jakarta), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Thin / hidden scrollbars for scroll regions */
+.scrollarea {
+  scrollbar-width: thin;
+  scrollbar-color: #c9c6bd transparent;
+}
+.scrollarea::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollarea::-webkit-scrollbar-thumb {
+  background: #c9c6bd;
+  border-radius: 9999px;
+}
+
+/* Page enter transition — replayed on every navigation via app/template.tsx */
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.page-transition {
+  animation: pageEnter 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-transition {
+    animation: none;
+  }
+}
+
+/* Toast & dialog entrances */
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.toast-in {
+  animation: toastIn 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes dialogIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.dialog-in {
+  animation: dialogIn 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Cart count badge bump (applied for one cycle when the count increases) */
+@keyframes badgeBump {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.badge-bump {
+  animation: badgeBump 320ms ease-out;
+}
+
+/* Product detail hero image arrival */
+@keyframes heroRise {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.hero-rise {
+  animation: heroRise 340ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  100% {
+    background-position: -200% 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #e7e3d9 0%,
+    #f2efe8 50%,
+    #e7e3d9 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+/* View Transitions: keep the morph gentle; honor reduced motion */
+::view-transition-group(*) {
+  animation-duration: 320ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+  .toast-in,
+  .dialog-in,
+  .badge-bump,
+  .hero-rise,
+  .skeleton {
+    animation: none;
+  }
+}
+
+/* Placeholder image texture used wherever a real photo will go */
+.ph-texture {
+  background: repeating-linear-gradient(
+    135deg,
+    #edeae2 0 9px,
+    #f6f4ee 9px 18px
+  );
 }

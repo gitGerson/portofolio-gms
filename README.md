@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Goldstar Official Store
 
-## Getting Started
+E-commerce storefront (Next.js 16 + React 19 + Tailwind v4) backed by **Supabase**,
+with a login-gated **admin panel**. Customer flow: browse → cart → checkout →
+QRIS payment → upload proof → WhatsApp confirmation. Orders are persisted to
+Supabase; admins manage products, categories, brands, and orders.
 
-First, run the development server:
+## Prerequisites
+
+- Node.js 20+
+- A Supabase project (free tier is fine)
+
+## 1. Install
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 2. Environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Copy `.env.example` to `.env.local` and fill in your Supabase values
+(Dashboard → Project Settings → API):
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>
+SUPABASE_SERVICE_ROLE_KEY=<service role key>   # server-only, keep secret
+NEXT_PUBLIC_STORE_WHATSAPP=6281234567890         # international format, no +
+```
 
-## Learn More
+## 3. Database
 
-To learn more about Next.js, take a look at the following resources:
+In the Supabase dashboard → **SQL Editor**, run these in order:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. [`supabase/schema.sql`](supabase/schema.sql) — tables, RLS policies, the
+   `is_admin()` helper, the `profiles` auto-create trigger, and the
+   `product-images` (public) + `payment-proofs` (private) storage buckets.
+2. [`supabase/seed.sql`](supabase/seed.sql) — the demo categories, brands, and
+   products. Re-runnable (upserts on slug).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+> Arbitrary SQL can't be applied with the service-role key over the REST API,
+> so these must be run from the dashboard (or via the Supabase CLI).
 
-## Deploy on Vercel
+## 4. Create the admin account
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Dashboard → **Authentication → Users → Add user** (email + password,
+   "Auto Confirm" on). The `profiles` trigger creates a row with role
+   `customer`.
+2. Promote it to admin in the SQL Editor:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```sql
+   update public.profiles set role = 'admin'
+   where id = (select id from auth.users where email = 'you@example.com');
+   ```
+
+## 5. Run
+
+```bash
+npm run dev      # http://localhost:3000  (storefront)
+                 # http://localhost:3000/admin  (admin panel)
+```
+
+Other scripts: `npm run build`, `npm run start`, `npm run lint`.
+
+## Architecture
+
+- **Storefront** (`app/`) — server components fetching from Supabase via the
+  RLS-bound client (`lib/supabase/server.ts`). Catalog is admin-editable, so
+  pages are `dynamic`. The cart is client-side (`lib/cart-context.tsx`,
+  `localStorage`, `useSyncExternalStore`) and stores a product snapshot per line.
+- **Checkout/payment** — `app/actions/orders.ts` server actions persist orders
+  (totals recomputed server-side from the DB) and upload payment proofs to the
+  private bucket via the service-role client (`lib/supabase/admin.ts`).
+- **Admin** (`app/admin/`) — `app/admin/login` (Supabase Auth) is public;
+  everything under `app/admin/(dashboard)/` is gated by `getAdminUser()`
+  (`lib/auth.ts`) checking the `admin` role. `proxy.ts` (Next 16's renamed
+  Middleware) refreshes the session and does an optimistic redirect to login.
+- **Data layer** — `lib/data/*` maps Supabase rows to camelCase domain types
+  (`lib/data/types.ts`).
+
+## Notes
+
+- Product photos: upload real images in the admin product form (stored in the
+  `product-images` bucket). Products without an image show a striped placeholder.
+- The QRIS code on the payment page is decorative — wire it to a real QRIS
+  payload/payment provider for production.
+- Search, sort, and price-range filters in the UI are not yet functional.
