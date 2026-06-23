@@ -12,6 +12,17 @@ export const quickTransition = {
   ease: shopEase,
 };
 
+export const curtainTransition = {
+  duration: 1,
+  ease: shopEase,
+};
+
+// Single sweep: starts covering the content, slides off to the right.
+export const curtainSweep: Variants = {
+  hidden: { x: "0%" },
+  show: { x: "100%" },
+};
+
 export const dialogTransition = {
   duration: 0.18,
   ease: shopEase,
