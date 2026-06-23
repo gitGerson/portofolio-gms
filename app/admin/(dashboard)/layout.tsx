@@ -16,7 +16,7 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-dvh bg-board">
-      <div className="mx-auto flex max-w-[1280px] flex-col md:flex-row">
+      <div className="flex flex-col md:flex-row">
         {/* Sidebar */}
         <aside className="flex flex-col gap-5 border-b border-line bg-white p-5 md:min-h-dvh md:w-60 md:flex-none md:border-b-0 md:border-r">
           <Link href="/admin" className="flex items-center gap-2.5">
