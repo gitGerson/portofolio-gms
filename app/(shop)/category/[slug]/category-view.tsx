@@ -91,7 +91,8 @@ export function CategoryView({
   return (
     <>
       {/* Mobile filter bar */}
-      <div className="flex items-center gap-2.5 border-b border-line bg-white px-4 py-3 md:hidden">
+      <div className="flex flex-col gap-2.5 border-b border-line bg-white px-4 py-3 md:hidden">
+        <div className="flex items-center gap-2.5">
         <select
           value={categorySlug === "__all__" ? "" : categorySlug}
           onChange={(e) => setParam("cat", e.target.value || null)}
@@ -101,18 +102,6 @@ export function CategoryView({
           {categories.map((c) => (
             <option key={c.slug} value={c.slug}>
               {c.name}
-            </option>
-          ))}
-        </select>
-        <select
-          value={selectedBrands[0] ?? ""}
-          onChange={(e) => setParam("brands", e.target.value || null)}
-          className="rounded-[9px] border border-line-strong bg-paper px-[11px] py-[7px] text-xs font-semibold text-ink"
-        >
-          <option value="">Semua Brand</option>
-          {brands.map((b) => (
-            <option key={b.slug} value={b.name}>
-              {b.name}
             </option>
           ))}
         </select>
@@ -130,6 +119,40 @@ export function CategoryView({
         <span className="ml-auto text-[11px] text-faint">
           {filtered.length} produk
         </span>
+        </div>
+
+        {brands.length > 0 ? (
+          <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-0.5">
+            <button
+              type="button"
+              onClick={() => setParam("brands", null)}
+              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                selectedBrands.length === 0
+                  ? "border-forest bg-forest text-white"
+                  : "border-line-strong bg-paper text-muted"
+              }`}
+            >
+              Semua Brand
+            </button>
+            {brands.map((b) => {
+              const on = selectedBrands.includes(b.name);
+              return (
+                <button
+                  key={b.slug}
+                  type="button"
+                  onClick={() => toggleBrand(b.name)}
+                  className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                    on
+                      ? "border-forest bg-forest text-white"
+                      : "border-line-strong bg-paper text-muted"
+                  }`}
+                >
+                  {b.name}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
       </div>
 
       <div className="px-4 pt-3.5 md:px-10 md:pt-6">
