@@ -15,13 +15,7 @@ export default async function AllCategoriesPage() {
 
   return (
     <Suspense fallback={null}>
-      <CategoryView
-        categorySlug="__all__"
-        categoryName="Semua Produk"
-        categories={categories}
-        brands={brands}
-        products={products}
-      />
+      <CategoryView categories={categories} brands={brands} products={products} />
     </Suspense>
   );
 }

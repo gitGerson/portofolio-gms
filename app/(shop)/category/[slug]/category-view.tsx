@@ -17,14 +17,10 @@ const SORT_LABEL: Record<Sort, string> = {
 };
 
 export function CategoryView({
-  categorySlug,
-  categoryName,
   categories,
   brands,
   products,
 }: {
-  categorySlug: string;
-  categoryName: string;
   categories: Category[];
   brands: Brand[];
   products: Product[];
@@ -32,6 +28,12 @@ export function CategoryView({
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
+
+  const categorySlug = params.get("cat") || "__all__";
+  const categoryName =
+    categorySlug === "__all__"
+      ? "Semua Produk"
+      : (categories.find((c) => c.slug === categorySlug)?.name ?? "Semua Produk");
 
   const selectedBrandsParam = params.get("brands") ?? "";
   const selectedBrands = useMemo(
@@ -62,6 +64,9 @@ export function CategoryView({
 
   const filtered = useMemo(() => {
     let items = [...products];
+    if (categorySlug !== "__all__") {
+      items = items.filter((p) => p.categorySlug === categorySlug);
+    }
     if (selectedBrands.length > 0) {
       const set = new Set(selectedBrands);
       items = items.filter((p) => p.brandName && set.has(p.brandName));
@@ -81,12 +86,24 @@ export function CategoryView({
         items.sort((a, b) => b.sold - a.sold);
     }
     return items;
-  }, [products, selectedBrands, min, max, sort]);
+  }, [products, categorySlug, selectedBrands, min, max, sort]);
 
   return (
     <>
       {/* Mobile filter bar */}
       <div className="flex items-center gap-2.5 border-b border-line bg-white px-4 py-3 md:hidden">
+        <select
+          value={categorySlug === "__all__" ? "" : categorySlug}
+          onChange={(e) => setParam("cat", e.target.value || null)}
+          className="rounded-[9px] border border-line-strong bg-paper px-[11px] py-[7px] text-xs font-semibold text-ink"
+        >
+          <option value="">Semua Produk</option>
+          {categories.map((c) => (
+            <option key={c.slug} value={c.slug}>
+              {c.name}
+            </option>
+          ))}
+        </select>
         <select
           value={selectedBrands[0] ?? ""}
           onChange={(e) => setParam("brands", e.target.value || null)}
@@ -129,28 +146,30 @@ export function CategoryView({
           <aside className="hidden w-[236px] flex-none md:block">
             <h3 className="mb-3 text-sm font-extrabold text-ink">Kategori</h3>
             <div className="mb-6 flex flex-col gap-0.5">
-              <Link
-                href="/category"
-                className={`rounded-[9px] px-[11px] py-[7px] text-[13.5px] ${
+              <button
+                type="button"
+                onClick={() => setParam("cat", null)}
+                className={`rounded-[9px] px-[11px] py-[7px] text-left text-[13.5px] ${
                   categorySlug === "__all__"
                     ? "bg-[#eaf2ee] font-bold text-forest"
                     : "text-muted hover:text-forest"
                 }`}
               >
                 Semua Produk
-              </Link>
+              </button>
               {categories.map((c) => (
-                <Link
+                <button
                   key={c.slug}
-                  href={`/category/${c.slug}`}
-                  className={`rounded-[9px] px-[11px] py-[7px] text-[13.5px] ${
+                  type="button"
+                  onClick={() => setParam("cat", c.slug)}
+                  className={`rounded-[9px] px-[11px] py-[7px] text-left text-[13.5px] ${
                     c.slug === categorySlug
                       ? "bg-[#eaf2ee] font-bold text-forest"
                       : "text-muted hover:text-forest"
                   }`}
                 >
                   {c.name}
-                </Link>
+                </button>
               ))}
             </div>
 

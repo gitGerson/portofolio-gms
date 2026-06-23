@@ -17,9 +17,9 @@ export default async function HomePage() {
   ]);
 
   const shopHref = categories[2]
-    ? `/category/${categories[2].slug}`
+    ? `/category?cat=${categories[2].slug}`
     : categories[0]
-      ? `/category/${categories[0].slug}`
+      ? `/category?cat=${categories[0].slug}`
       : "/";
 
   return (
@@ -68,7 +68,7 @@ export default async function HomePage() {
               {categories.map((cat, i) => (
                 <Link
                   key={cat.slug}
-                  href={`/category/${cat.slug}`}
+                  href={`/category?cat=${cat.slug}`}
                   className={`rounded-[15px] border p-3 text-center md:flex md:items-center md:gap-3 md:p-4 md:text-left ${
                     i === 2
                       ? "border-forest bg-forest text-white"

@@ -37,7 +37,7 @@ export function Footer({ categories }: { categories: Category[] }) {
               primaryCategories.map((category) => (
                 <Link
                   key={category.slug}
-                  href={`/category/${category.slug}`}
+                  href={`/category?cat=${category.slug}`}
                   className="text-[13.5px] font-medium text-muted hover:text-forest"
                 >
                   {category.name}

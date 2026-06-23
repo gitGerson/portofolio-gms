@@ -56,7 +56,9 @@ export default async function ProductPage({
         <div className="flex items-center gap-3 border-b border-line bg-white px-4 py-3 md:hidden">
           <Link
             href={
-              product.categorySlug ? `/category/${product.categorySlug}` : "/"
+              product.categorySlug
+                ? `/category?cat=${product.categorySlug}`
+                : "/"
             }
             aria-label="Kembali"
             className="flex h-[34px] w-[34px] items-center justify-center rounded-[10px] border border-line bg-paper text-ink"
