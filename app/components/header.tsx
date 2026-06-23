@@ -3,24 +3,14 @@ import { STORE } from "@/lib/products";
 import { UserIcon } from "./icons";
 import { CartCount } from "./cart-count";
 import { SearchBox } from "./search-box";
+import { DesktopNav } from "./desktop-nav";
 
 /**
  * Responsive store header.
  * Mobile: forest banner with logo + search.
  * Desktop (md+): white top-nav with links, search, cart, account.
  */
-export function Header({
-  active,
-}: {
-  active?: string;
-}) {
-  const nav = [
-    { label: "Beranda", href: "/" },
-    { label: "Kategori", href: "/category" },
-    { label: "Promo", href: "/" },
-    { label: "Tentang", href: "/" },
-  ];
-
+export function Header() {
   return (
     <header>
       {/* Mobile header */}
@@ -63,21 +53,7 @@ export function Header({
             </span>
           </span>
         </Link>
-        <nav className="ml-3.5 flex gap-6">
-          {nav.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={`text-sm ${
-                active === item.label
-                  ? "font-bold text-forest"
-                  : "font-medium text-muted hover:text-forest"
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <DesktopNav />
         <div className="ml-auto max-w-[520px] flex-1 xl:max-w-[680px]">
           <SearchBox placeholder="Cari produk…" variant="dark" />
         </div>

@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { ShopShell } from "@/app/components/shop-shell";
 import { getCategories, getCategoryBySlug } from "@/lib/data/categories";
 import { getBrands } from "@/lib/data/brands";
 import { getCategoryProducts } from "@/lib/data/products";
@@ -23,16 +22,14 @@ export default async function CategoryPage({
   if (!category) notFound();
 
   return (
-    <ShopShell active="Kategori">
-      <Suspense fallback={null}>
-        <CategoryView
-          categorySlug={slug}
-          categoryName={category.name}
-          categories={categories}
-          brands={brands}
-          products={products}
-        />
-      </Suspense>
-    </ShopShell>
+    <Suspense fallback={null}>
+      <CategoryView
+        categorySlug={slug}
+        categoryName={category.name}
+        categories={categories}
+        brands={brands}
+        products={products}
+      />
+    </Suspense>
   );
 }

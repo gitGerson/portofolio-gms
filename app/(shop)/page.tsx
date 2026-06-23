@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { ShopShell } from "./components/shop-shell";
-import { ProductCard } from "./components/product-card";
-import { Placeholder } from "./components/placeholder";
+import { ProductCard } from "@/app/components/product-card";
+import { Placeholder } from "@/app/components/placeholder";
 import { getCategories } from "@/lib/data/categories";
 import { getPromos, getFeatured } from "@/lib/data/products";
 import type { Category } from "@/lib/data/types";
@@ -24,8 +23,7 @@ export default async function HomePage() {
       : "/";
 
   return (
-    <ShopShell active="Beranda">
-      <div className="px-[18px] pt-[18px] md:px-10 md:pt-7">
+    <div className="px-[18px] pt-[18px] md:px-10 md:pt-7">
         {/* Hero banner */}
         <section className="relative flex h-[142px] flex-col justify-center overflow-hidden rounded-[20px] bg-forest-dark px-5 text-white md:h-[208px] md:px-11">
           <div className="absolute -right-8 -top-8 h-[130px] w-[130px] rounded-full bg-gold/20 md:h-[260px] md:w-[260px]" />
@@ -111,7 +109,6 @@ export default async function HomePage() {
             ))}
           </div>
         </section>
-      </div>
-    </ShopShell>
+    </div>
   );
 }

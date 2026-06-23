@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ShopShell } from "@/app/components/shop-shell";
 import { ChevronLeft, StarIcon } from "@/app/components/icons";
 import type { ProductSnapshot } from "@/app/components/add-to-cart-button";
 import { formatRupiah } from "@/lib/format";
@@ -52,8 +51,7 @@ export default async function ProductPage({
       : null;
 
   return (
-    <ShopShell active="Kategori" showFab={false}>
-      <div className="md:flex md:gap-10 md:px-10 md:py-8">
+    <div className="md:flex md:gap-10 md:px-10 md:py-8">
         {/* Back bar (mobile) */}
         <div className="flex items-center gap-3 border-b border-line bg-white px-4 py-3 md:hidden">
           <Link
@@ -154,7 +152,6 @@ export default async function ProductPage({
             <ProductActions product={snapshot} inStock={product.inStock} />
           </div>
         </div>
-      </div>
-    </ShopShell>
+    </div>
   );
 }

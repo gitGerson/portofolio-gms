@@ -1,8 +1,17 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import { waLink } from "@/lib/whatsapp";
 import { WhatsAppIcon } from "./icons";
 
+/** Routes where the floating WA button is hidden (checkout/payment funnel + product). */
+const HIDDEN_PREFIXES = ["/cart", "/checkout", "/payment", "/product"];
+
 /** Floating WhatsApp button (mobile). */
 export function WaFab() {
+  const pathname = usePathname();
+  if (HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))) return null;
+
   return (
     <a
       href={waLink("Halo Goldstar, saya mau tanya produk.")}

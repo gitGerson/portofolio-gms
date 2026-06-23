@@ -1,4 +1,3 @@
-import { ShopShell } from "@/app/components/shop-shell";
 import { ProductCard } from "@/app/components/product-card";
 import { searchProducts } from "@/lib/data/products";
 
@@ -14,8 +13,7 @@ export default async function SearchPage({
   const results = term ? await searchProducts(term) : [];
 
   return (
-    <ShopShell>
-      <div className="px-4 pt-5 md:px-10 md:pt-7">
+    <div className="px-4 pt-5 md:px-10 md:pt-7">
         <h1 className="text-lg font-extrabold text-ink md:text-2xl">
           {term ? (
             <>
@@ -41,7 +39,6 @@ export default async function SearchPage({
             ))}
           </div>
         )}
-      </div>
-    </ShopShell>
+    </div>
   );
 }
