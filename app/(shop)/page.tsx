@@ -65,15 +65,11 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="grid grid-cols-3 gap-3 md:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
-              {categories.map((cat, i) => (
+              {categories.map((cat) => (
                 <Link
                   key={cat.slug}
                   href={`/category?cat=${cat.slug}`}
-                  className={`rounded-[15px] border p-3 text-center md:flex md:items-center md:gap-3 md:p-4 md:text-left ${
-                    i === 2
-                      ? "border-forest bg-forest text-white"
-                      : "border-line bg-white text-ink"
-                  }`}
+                  className="rounded-[15px] border border-line bg-white p-3 text-center text-ink md:flex md:items-center md:gap-3 md:p-4 md:text-left"
                 >
                   <Placeholder className="mb-2 h-12 rounded-[10px] md:mb-0 md:h-[46px] md:w-[46px] md:flex-none md:rounded-[11px]" />
                   <span className="text-[11.5px] font-semibold leading-tight md:text-sm md:font-bold">
