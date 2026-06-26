@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const NAV = [
   { label: "Beranda", href: "/" },
   { label: "Kategori", href: "/category" },
-  { label: "Promo", href: "/" },
+  { label: "Promo", href: "/promo" },
   { label: "Tentang", href: "/" },
 ];
 
@@ -18,6 +18,7 @@ export function DesktopNav() {
     if (label === "Beranda") return pathname === "/";
     if (label === "Kategori")
       return pathname.startsWith("/category") || pathname.startsWith("/product");
+    if (label === "Promo") return pathname.startsWith("/promo");
     return false;
   };
 

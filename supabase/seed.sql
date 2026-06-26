@@ -147,3 +147,22 @@ on conflict (slug) do update set
   highlights  = excluded.highlights,
   image_path  = excluded.image_path,
   image_tag   = excluded.image_tag;
+
+-- Example scheduled promotion: 25% off, active, open-ended window. The
+-- products_with_promo view auto-applies it to the linked products.
+insert into public.promotions (slug, title, discount_pct, starts_at, ends_at, active) values
+  ('promo-mingguan', 'Promo Mingguan', 25, now() - interval '1 day', now() + interval '14 days', true)
+on conflict (slug) do update set
+  title        = excluded.title,
+  discount_pct = excluded.discount_pct,
+  starts_at    = excluded.starts_at,
+  ends_at      = excluded.ends_at,
+  active       = excluded.active;
+
+insert into public.product_promotions (product_id, promo_id)
+select p.id, pr.id
+from public.promotions pr
+cross join public.products p
+where pr.slug = 'promo-mingguan'
+  and p.slug in ('adaptor-20w-pd-fast', 'data-cable-type-c-100w-1m', 'car-charger-45w-dual')
+on conflict do nothing;

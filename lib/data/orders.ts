@@ -1,7 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { mapProduct } from "./products";
+import { mapProduct, PRODUCTS_VIEW, SELECT as PRODUCT_SELECT } from "./products";
 import type { Order, OrderItem, OrderStatus } from "./types";
 
 type OrderItemRow = {
@@ -88,10 +88,8 @@ export async function createOrder(input: NewOrderInput): Promise<Order> {
 
   const slugs = input.items.map((i) => i.slug);
   const { data: productRows, error: prodErr } = await admin
-    .from("products")
-    .select(
-      "id, slug, name, price, old_price, stock, rating, sold, description, highlights, image_path, image_tag, categories(slug, name), brands(name)",
-    )
+    .from(PRODUCTS_VIEW)
+    .select(PRODUCT_SELECT)
     .in("slug", slugs);
   if (prodErr) throw prodErr;
 

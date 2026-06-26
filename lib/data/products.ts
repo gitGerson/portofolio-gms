@@ -1,8 +1,16 @@
 import { createPublicClient } from "@/lib/supabase/public";
 import type { Product } from "./types";
 
-/** Shape of a products row joined with category + brand. */
-type ProductRow = {
+/**
+ * Canonical product read source. The `products_with_promo` view flattens
+ * category/brand and resolves the effective sale price from the active
+ * promotion (see supabase/schema.sql). All product reads go through it so the
+ * rest of the app keeps using plain `price`/`oldPrice`.
+ */
+export const PRODUCTS_VIEW = "products_with_promo";
+
+/** Shape of a products_with_promo row (flat category/brand + promo columns). */
+export type ProductRow = {
   id: string;
   slug: string;
   name: string;
@@ -17,12 +25,14 @@ type ProductRow = {
   image_tag: string | null;
   category_id: string | null;
   brand_id: string | null;
-  categories: { slug: string; name: string } | null;
-  brands: { name: string } | null;
+  category_slug: string | null;
+  category_name: string | null;
+  brand_name: string | null;
+  promo_title: string | null;
 };
 
-const SELECT =
-  "id, slug, name, price, old_price, stock, rating, sold, description, highlights, image_path, image_tag, category_id, brand_id, categories(slug, name), brands(name)";
+export const SELECT =
+  "id, slug, name, price, old_price, stock, rating, sold, description, highlights, image_path, image_tag, category_id, brand_id, category_slug, category_name, brand_name, promo_title";
 
 export function mapProduct(row: ProductRow): Product {
   return {
@@ -30,10 +40,10 @@ export function mapProduct(row: ProductRow): Product {
     slug: row.slug,
     name: row.name,
     categoryId: row.category_id,
-    categorySlug: row.categories?.slug ?? null,
-    categoryName: row.categories?.name ?? null,
+    categorySlug: row.category_slug,
+    categoryName: row.category_name,
     brandId: row.brand_id,
-    brandName: row.brands?.name ?? null,
+    brandName: row.brand_name,
     price: row.price,
     oldPrice: row.old_price,
     stock: row.stock,
@@ -44,13 +54,14 @@ export function mapProduct(row: ProductRow): Product {
     highlights: row.highlights ?? [],
     imagePath: row.image_path,
     imageTag: row.image_tag,
+    promoTitle: row.promo_title,
   };
 }
 
 export async function getProducts(): Promise<Product[]> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
-    .from("products")
+    .from(PRODUCTS_VIEW)
     .select(SELECT)
     .order("created_at", { ascending: true });
   if (error) throw error;
@@ -60,7 +71,7 @@ export async function getProducts(): Promise<Product[]> {
 export async function getProductById(id: string): Promise<Product | null> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
-    .from("products")
+    .from(PRODUCTS_VIEW)
     .select(SELECT)
     .eq("id", id)
     .maybeSingle();
@@ -71,7 +82,7 @@ export async function getProductById(id: string): Promise<Product | null> {
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
-    .from("products")
+    .from(PRODUCTS_VIEW)
     .select(SELECT)
     .eq("slug", slug)
     .maybeSingle();
@@ -93,10 +104,9 @@ export async function getCategoryProducts(
 ): Promise<Product[]> {
   const supabase = createPublicClient();
   let query = supabase
-    .from("products")
+    .from(PRODUCTS_VIEW)
     .select(SELECT)
-    .eq("categories.slug", categorySlug)
-    .not("category_id", "is", null);
+    .eq("category_slug", categorySlug);
 
   if (filters.min !== undefined) query = query.gte("price", filters.min);
   if (filters.max !== undefined) query = query.lte("price", filters.max);
@@ -117,11 +127,9 @@ export async function getCategoryProducts(
 
   const { data, error } = await query;
   if (error) throw error;
-  let items = (data as unknown as ProductRow[])
-    .filter((r) => r.categories?.slug === categorySlug)
-    .map(mapProduct);
+  let items = (data as unknown as ProductRow[]).map(mapProduct);
 
-  // Brand filter applied in JS (brand is a joined relation).
+  // Brand filter applied in JS (brand name is a flattened column).
   if (filters.brands && filters.brands.length > 0) {
     const set = new Set(filters.brands);
     items = items.filter((p) => p.brandName && set.has(p.brandName));
@@ -140,7 +148,7 @@ export async function searchProducts(q: string): Promise<Product[]> {
   if (!term) return [];
   const supabase = createPublicClient();
   const { data, error } = await supabase
-    .from("products")
+    .from(PRODUCTS_VIEW)
     .select(SELECT)
     .ilike("name", `%${term}%`)
     .order("sold", { ascending: false })
@@ -149,9 +157,33 @@ export async function searchProducts(q: string): Promise<Product[]> {
   return (data as unknown as ProductRow[]).map(mapProduct);
 }
 
+/**
+ * Products currently on promo — i.e. showing a strikethrough price, which the
+ * view returns for both active scheduled campaigns and any legacy manual
+ * old_price. Filtered at the DB so it scales with the catalogue.
+ */
 export async function getPromos(): Promise<Product[]> {
-  const all = await getProducts();
-  return all.filter((p) => p.oldPrice !== null);
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from(PRODUCTS_VIEW)
+    .select(SELECT)
+    .not("old_price", "is", null)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data as unknown as ProductRow[]).map(mapProduct);
+}
+
+/** The N most recently created products that are on promo (for the hero slider). */
+export async function getLatestPromos(limit = 5): Promise<Product[]> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from(PRODUCTS_VIEW)
+    .select(SELECT)
+    .not("old_price", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data as unknown as ProductRow[]).map(mapProduct);
 }
 
 export async function getFeatured(): Promise<Product[]> {

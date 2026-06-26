@@ -54,6 +54,31 @@ create table if not exists public.products (
 
 create index if not exists products_category_idx on public.products(category_id);
 
+-- A scheduled discount campaign. Active products show the discounted price
+-- (computed in the products_with_promo view) with the base price struck through.
+create table if not exists public.promotions (
+  id              uuid primary key default gen_random_uuid(),
+  title           text not null,
+  slug            text unique,                -- optional, for future deep-links
+  discount_pct    int  check (discount_pct between 1 and 100),
+  discount_amount int  check (discount_amount >= 0),
+  starts_at       timestamptz,                -- null = no lower bound
+  ends_at         timestamptz,                -- null = no upper bound
+  active          boolean not null default true,
+  created_at      timestamptz not null default now(),
+  updated_at      timestamptz not null default now(),
+  check (discount_pct is not null or discount_amount is not null)
+);
+
+-- Which products belong to a campaign (many-to-many).
+create table if not exists public.product_promotions (
+  product_id  uuid not null references public.products(id)   on delete cascade,
+  promo_id    uuid not null references public.promotions(id) on delete cascade,
+  primary key (product_id, promo_id)
+);
+
+create index if not exists product_promotions_product_idx on public.product_promotions(product_id);
+
 create table if not exists public.orders (
   id             uuid primary key default gen_random_uuid(),
   order_no       text not null unique,
@@ -107,6 +132,51 @@ create trigger products_set_updated_at
   before update on public.products
   for each row execute function public.set_updated_at();
 
+drop trigger if exists promotions_set_updated_at on public.promotions;
+create trigger promotions_set_updated_at
+  before update on public.promotions
+  for each row execute function public.set_updated_at();
+
+-- ---------------------------------------------------------------------------
+-- products_with_promo — canonical product read source for the storefront.
+-- Flattens category/brand and resolves the effective sale price from the best
+-- (largest) currently-active promotion. For a product in an active promo:
+--   price     = discounted price,  old_price = base price (strikethrough).
+-- Otherwise it returns the manual price/old_price unchanged. security_invoker
+-- makes the view honour the caller's RLS on the underlying tables.
+-- ---------------------------------------------------------------------------
+create or replace view public.products_with_promo
+with (security_invoker = true) as
+select
+  p.id, p.slug, p.name, p.category_id, p.brand_id, p.stock,
+  p.rating, p.sold, p.description, p.highlights, p.image_path, p.image_tag,
+  p.created_at,
+  c.slug as category_slug, c.name as category_name, b.name as brand_name,
+  ap.promo_id, ap.promo_title, ap.discount_pct, ap.discount_amount,
+  case when ap.promo_id is not null
+       then greatest(0,
+              case when ap.discount_pct is not null
+                   then round(p.price * (1 - ap.discount_pct / 100.0))::int
+                   else p.price - ap.discount_amount end)
+       else p.price end                                              as price,
+  case when ap.promo_id is not null then p.price else p.old_price end as old_price
+from public.products p
+left join public.categories c on c.id = p.category_id
+left join public.brands     b on b.id = p.brand_id
+left join lateral (
+  select pp.promo_id, pr.title as promo_title, pr.discount_pct, pr.discount_amount
+  from public.product_promotions pp
+  join public.promotions pr on pr.id = pp.promo_id
+  where pp.product_id = p.id and pr.active
+    and (pr.starts_at is null or pr.starts_at <= now())
+    and (pr.ends_at   is null or pr.ends_at   >= now())
+  order by coalesce(pr.discount_pct, 0) desc, coalesce(pr.discount_amount, 0) desc
+  limit 1
+) ap on true;
+
+-- The storefront reads the view with the anon/authenticated API roles.
+grant select on public.products_with_promo to anon, authenticated;
+
 -- ---------------------------------------------------------------------------
 -- Auto-create a profile row whenever an auth user is created
 -- ---------------------------------------------------------------------------
@@ -139,12 +209,14 @@ $$;
 -- ---------------------------------------------------------------------------
 -- Row Level Security
 -- ---------------------------------------------------------------------------
-alter table public.categories  enable row level security;
-alter table public.brands      enable row level security;
-alter table public.products    enable row level security;
-alter table public.orders      enable row level security;
-alter table public.order_items enable row level security;
-alter table public.profiles    enable row level security;
+alter table public.categories         enable row level security;
+alter table public.brands             enable row level security;
+alter table public.products           enable row level security;
+alter table public.promotions         enable row level security;
+alter table public.product_promotions enable row level security;
+alter table public.orders             enable row level security;
+alter table public.order_items        enable row level security;
+alter table public.profiles           enable row level security;
 
 -- Catalog: everyone reads, only admins write.
 drop policy if exists "categories read"  on public.categories;
@@ -161,6 +233,16 @@ drop policy if exists "products read"  on public.products;
 drop policy if exists "products admin" on public.products;
 create policy "products read"  on public.products for select using (true);
 create policy "products admin" on public.products for all using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "promotions read"  on public.promotions;
+drop policy if exists "promotions admin" on public.promotions;
+create policy "promotions read"  on public.promotions for select using (true);
+create policy "promotions admin" on public.promotions for all using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "product_promotions read"  on public.product_promotions;
+drop policy if exists "product_promotions admin" on public.product_promotions;
+create policy "product_promotions read"  on public.product_promotions for select using (true);
+create policy "product_promotions admin" on public.product_promotions for all using (public.is_admin()) with check (public.is_admin());
 
 -- Orders: anyone may create (guest checkout); only admins may read/update/delete.
 drop policy if exists "orders insert" on public.orders;

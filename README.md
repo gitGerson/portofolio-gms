@@ -35,10 +35,18 @@ NEXT_PUBLIC_STORE_TAGLINE=Official Store         # optional, store tagline
 In the Supabase dashboard → **SQL Editor**, run these in order:
 
 1. [`supabase/schema.sql`](supabase/schema.sql) — tables, RLS policies, the
-   `is_admin()` helper, the `profiles` auto-create trigger, and the
-   `product-images` (public) + `payment-proofs` (private) storage buckets.
-2. [`supabase/seed.sql`](supabase/seed.sql) — the demo categories, brands, and
-   products. Re-runnable (upserts on slug).
+   `is_admin()` helper, the `profiles` auto-create trigger, the
+   `product-images` (public) + `payment-proofs` (private) storage buckets, and
+   the `promotions` / `product_promotions` tables plus the
+   `products_with_promo` view (the storefront's canonical product read source,
+   which resolves the effective sale price from active scheduled promotions).
+2. [`supabase/seed.sql`](supabase/seed.sql) — the demo categories, brands,
+   products, and an example promotion. Re-runnable (upserts on slug).
+
+> Re-run `schema.sql` after pulling promo support so the new tables and
+> `products_with_promo` view exist — the app reads products through that view,
+> so builds/queries fail with `Could not find the table 'public.products_with_promo'`
+> until it's applied.
 
 > Arbitrary SQL can't be applied with the service-role key over the REST API,
 > so these must be run from the dashboard (or via the Supabase CLI).

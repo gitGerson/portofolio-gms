@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ProductCard } from "@/app/components/product-card";
+import { PromoHeroSlider } from "@/app/components/promo-hero-slider";
 import { Placeholder } from "@/app/components/placeholder";
 import { productImageUrl } from "@/lib/images";
 import { getCategories } from "@/lib/data/categories";
-import { getPromos, getFeatured } from "@/lib/data/products";
+import { getPromos, getLatestPromos, getFeatured } from "@/lib/data/products";
 import type { Category } from "@/lib/data/types";
 
 // Catalog is admin-editable; ISR keeps navigation fast and revalidates on edits
@@ -12,45 +13,17 @@ import type { Category } from "@/lib/data/types";
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [categories, promos, featured] = await Promise.all([
+  const [categories, promos, latestPromos, featured] = await Promise.all([
     getCategories().catch((): Category[] => []),
     getPromos().catch(() => []),
+    getLatestPromos(5).catch(() => []),
     getFeatured().catch(() => []),
   ]);
 
-  const shopHref = categories[2]
-    ? `/category?cat=${categories[2].slug}`
-    : categories[0]
-      ? `/category?cat=${categories[0].slug}`
-      : "/";
-
   return (
     <div className="px-[18px] pt-[18px] md:px-10 md:pt-7">
-        {/* Hero banner */}
-        <section className="relative flex h-[142px] flex-col justify-center overflow-hidden rounded-[20px] bg-forest-dark px-5 text-white md:h-[208px] md:px-11">
-          <div className="absolute -right-8 -top-8 h-[130px] w-[130px] rounded-full bg-gold/20 md:h-[260px] md:w-[260px]" />
-          <Placeholder
-            tag="product shot"
-            className="absolute right-3.5 bottom-3.5 hidden h-16 w-16 rounded-[14px] md:right-12 md:top-1/2 md:bottom-auto md:flex md:h-[150px] md:w-[150px] md:-translate-y-1/2 md:rounded-[18px]"
-          />
-          <div className="relative max-w-[200px] md:max-w-[560px]">
-            <div className="font-mono text-[10px] font-bold tracking-[0.14em] text-gold md:text-xs md:tracking-[0.16em]">
-              PROMO MINGGU INI
-            </div>
-            <h1 className="mt-1.5 text-[22px] font-extrabold leading-tight md:mt-2.5 md:text-4xl">
-              Diskon s/d 30% charger &amp; kabel
-            </h1>
-            <div className="mt-1.5 text-xs text-[#a8cdba] md:hidden">
-              Berlaku terbatas
-            </div>
-            <Link
-              href={shopHref}
-              className="mt-4 hidden h-11 items-center rounded-xl bg-gold px-[22px] text-sm font-bold text-ink md:inline-flex"
-            >
-              Belanja Sekarang
-            </Link>
-          </div>
-        </section>
+        {/* Hero — promo slider (falls back to static hero when no promos) */}
+        <PromoHeroSlider promos={latestPromos} />
 
         {/* Categories */}
         {categories.length > 0 ? (

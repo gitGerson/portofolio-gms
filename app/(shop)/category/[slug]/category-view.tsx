@@ -20,10 +20,13 @@ export function CategoryView({
   categories,
   brands,
   products,
+  rootLabel = "Semua Produk",
 }: {
   categories: Category[];
   brands: Brand[];
   products: Product[];
+  /** Label for the "all" state — e.g. "Promo" on the promo page. */
+  rootLabel?: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -32,8 +35,8 @@ export function CategoryView({
   const categorySlug = params.get("cat") || "__all__";
   const categoryName =
     categorySlug === "__all__"
-      ? "Semua Produk"
-      : (categories.find((c) => c.slug === categorySlug)?.name ?? "Semua Produk");
+      ? rootLabel
+      : (categories.find((c) => c.slug === categorySlug)?.name ?? rootLabel);
 
   const selectedBrandsParam = params.get("brands") ?? "";
   const selectedBrands = useMemo(
@@ -98,7 +101,7 @@ export function CategoryView({
           onChange={(e) => setParam("cat", e.target.value || null)}
           className="rounded-[9px] border border-line-strong bg-paper px-[11px] py-[7px] text-xs font-semibold text-ink"
         >
-          <option value="">Semua Produk</option>
+          <option value="">{rootLabel}</option>
           {categories.map((c) => (
             <option key={c.slug} value={c.slug}>
               {c.name}
@@ -178,7 +181,7 @@ export function CategoryView({
                     : "text-muted hover:text-forest"
                 }`}
               >
-                Semua Produk
+                {rootLabel}
               </button>
               {categories.map((c) => (
                 <button

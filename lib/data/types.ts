@@ -34,6 +34,21 @@ export type Product = {
   highlights: string[];
   imagePath: string | null;
   imageTag: string | null;
+  /** Title of the active promotion, when the product is on a scheduled promo. */
+  promoTitle: string | null;
+};
+
+export type Promotion = {
+  id: string;
+  slug: string | null;
+  title: string;
+  discountPct: number | null;
+  discountAmount: number | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  active: boolean;
+  createdAt: string;
+  productIds: string[];
 };
 
 export type OrderStatus =
