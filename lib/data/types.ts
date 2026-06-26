@@ -12,6 +12,7 @@ export type Brand = {
   id: string;
   slug: string;
   name: string;
+  logoImage: string | null;
 };
 
 export type Product = {

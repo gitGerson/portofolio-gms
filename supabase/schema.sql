@@ -26,8 +26,12 @@ create table if not exists public.brands (
   id          uuid primary key default gen_random_uuid(),
   slug        text not null unique,
   name        text not null,
+  logo_image  text,            -- bucket path or absolute URL for the brand logo
   created_at  timestamptz not null default now()
 );
+
+-- Backfill for databases created before logo_image existed.
+alter table public.brands add column if not exists logo_image text;
 
 create table if not exists public.products (
   id           uuid primary key default gen_random_uuid(),

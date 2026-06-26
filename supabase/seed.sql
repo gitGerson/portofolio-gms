@@ -17,11 +17,16 @@ on conflict (slug) do update set
   sort_order = excluded.sort_order,
   image_path = excluded.image_path;
 
-insert into public.brands (slug, name) values
-  ('ugreen', 'UGREEN'),
-  ('baseus', 'Baseus'),
-  ('anker',  'Anker')
-on conflict (slug) do update set name = excluded.name;
+-- logo_image holds an absolute URL to an open-source (Creative Commons) photo
+-- served by loremflickr.com; ?lock= pins a stable image per brand. Real brand
+-- logos are trademarked, so these are generic placeholders for demo purposes.
+insert into public.brands (slug, name, logo_image) values
+  ('ugreen', 'UGREEN', 'https://loremflickr.com/200/200/technology,logo?lock=210'),
+  ('baseus', 'Baseus', 'https://loremflickr.com/200/200/electronics,logo?lock=220'),
+  ('anker',  'Anker',  'https://loremflickr.com/200/200/gadget,logo?lock=230')
+on conflict (slug) do update set
+  name       = excluded.name,
+  logo_image = excluded.logo_image;
 
 -- Products (category_id / brand_id resolved by slug)
 -- image_path holds an absolute URL to an open-source (Creative Commons) photo
