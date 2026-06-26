@@ -14,6 +14,7 @@ import { useCart } from "@/lib/cart-context";
 import { formatRupiah } from "@/lib/format";
 import { useOrderNo, clearOrderNo } from "@/lib/order";
 import { waLink, orderMessage } from "@/lib/whatsapp";
+import { STORE } from "@/lib/products";
 import { getOrderAction, submitProofAction } from "@/app/actions/orders";
 import type { Order } from "@/lib/data/types";
 
@@ -203,7 +204,9 @@ export function UploadView() {
 
         {/* WA help */}
         <a
-          href={waLink("Halo Goldstar, saya butuh bantuan untuk pesanan saya.")}
+          href={waLink(
+            `Halo ${STORE.name}, saya butuh bantuan untuk pesanan saya.`,
+          )}
           target="_blank"
           rel="noopener noreferrer"
           className="mt-3 flex items-center gap-3 rounded-[14px] border border-line bg-white p-3.5"

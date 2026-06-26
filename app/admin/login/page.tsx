@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getAdminUser } from "@/lib/auth";
+import { STORE } from "@/lib/products";
 import { LoginForm } from "./login-form";
 
 export const dynamic = "force-dynamic";
@@ -20,11 +21,11 @@ export default async function AdminLoginPage({
       <div className="w-full max-w-sm">
         <div className="mb-7 flex items-center gap-3">
           <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-forest text-xl font-extrabold text-gold">
-            G
+            {STORE.name.charAt(0).toUpperCase()}
           </span>
           <div>
             <div className="text-lg font-extrabold leading-none text-ink">
-              GOLDSTAR
+              {STORE.name.toUpperCase()}
             </div>
             <div className="font-mono text-[11px] tracking-wider text-faint">
               ADMIN PANEL

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getAdminUser } from "@/lib/auth";
+import { STORE } from "@/lib/products";
 import { signOutAction } from "../auth-actions";
 import { AdminNav } from "./admin-nav";
 
@@ -21,11 +22,11 @@ export default async function AdminLayout({
         <aside className="flex flex-col gap-5 border-b border-line bg-white p-5 md:min-h-dvh md:w-60 md:flex-none md:border-b-0 md:border-r">
           <Link href="/admin" className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-forest text-base font-extrabold text-gold">
-              G
+              {STORE.name.charAt(0).toUpperCase()}
             </span>
             <span>
               <span className="block text-sm font-extrabold leading-none text-ink">
-                GOLDSTAR
+                {STORE.name.toUpperCase()}
               </span>
               <span className="font-mono text-[10px] tracking-wider text-faint">
                 ADMIN

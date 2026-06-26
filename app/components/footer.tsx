@@ -79,7 +79,7 @@ export function Footer({ categories }: { categories: Category[] }) {
           <h2 className="text-sm font-extrabold text-ink">Bantuan</h2>
           <div className="mt-3 flex flex-col gap-3">
             <a
-              href={waLink("Halo Goldstar, saya mau tanya produk.")}
+              href={waLink(`Halo ${STORE.name}, saya mau tanya produk.`)}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex h-10 w-fit items-center gap-2 rounded-[11px] bg-forest px-4 text-sm font-bold text-white hover:bg-forest-dark"

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { listOrders } from "@/lib/data/orders";
 import { getProducts } from "@/lib/data/products";
 import { formatRupiah } from "@/lib/format";
+import { STORE } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,7 @@ export default async function AdminDashboard() {
   return (
     <div>
       <h1 className="text-2xl font-extrabold text-ink">Dashboard</h1>
-      <p className="mt-1 text-sm text-muted">Ringkasan toko Goldstar.</p>
+      <p className="mt-1 text-sm text-muted">Ringkasan toko {STORE.name}.</p>
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((s) => (

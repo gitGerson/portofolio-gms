@@ -26,6 +26,8 @@ NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>
 SUPABASE_SERVICE_ROLE_KEY=<service role key>   # server-only, keep secret
 NEXT_PUBLIC_STORE_WHATSAPP=6281234567890         # international format, no +
+NEXT_PUBLIC_STORE_NAME=Goldstar                  # optional, store name
+NEXT_PUBLIC_STORE_TAGLINE=Official Store         # optional, store tagline
 ```
 
 ## 3. Database

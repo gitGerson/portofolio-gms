@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Space_Mono } from "next/font/google";
 import "./globals.css";
+import { STORE } from "@/lib/products";
 import { CartProvider } from "@/lib/cart-context";
 import { CartUIProvider } from "@/lib/cart-ui-context";
 import { ToastProvider } from "./components/ui/toast";
@@ -22,7 +23,7 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Goldstar Official Store",
+  title: `${STORE.name} ${STORE.tagline}`,
   description:
     "Belanja charger, kabel data, adaptor, dan NAS storage. Pembayaran QRIS, konfirmasi pesanan via WhatsApp.",
 };

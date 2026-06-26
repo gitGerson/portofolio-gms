@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { waLink } from "@/lib/whatsapp";
+import { STORE } from "@/lib/products";
 import { WhatsAppIcon } from "./icons";
 
 /** Routes where the floating WA button is hidden (checkout/payment funnel + product). */
@@ -14,7 +15,7 @@ export function WaFab() {
 
   return (
     <a
-      href={waLink("Halo Goldstar, saya mau tanya produk.")}
+      href={waLink(`Halo ${STORE.name}, saya mau tanya produk.`)}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat WhatsApp"

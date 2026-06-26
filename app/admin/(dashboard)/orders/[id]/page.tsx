@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getOrderById, proofSignedUrl } from "@/lib/data/orders";
 import { formatRupiah } from "@/lib/format";
 import { waLink } from "@/lib/whatsapp";
+import { STORE } from "@/lib/products";
 import { ChevronLeft, WhatsAppIcon } from "@/app/components/icons";
 import { StatusSelect } from "../status-select";
 
@@ -74,7 +75,7 @@ export default async function AdminOrderDetailPage({
           </dl>
           <a
             href={waLink(
-              `Halo ${order.customerName}, terima kasih atas pesanan ${order.orderNo} di Goldstar.`,
+              `Halo ${order.customerName}, terima kasih atas pesanan ${order.orderNo} di ${STORE.name}.`,
             )}
             target="_blank"
             rel="noopener noreferrer"
