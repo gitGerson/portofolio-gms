@@ -5,6 +5,7 @@ export type Category = {
   slug: string;
   name: string;
   sortOrder: number;
+  imagePath: string | null;
 };
 
 export type Brand = {

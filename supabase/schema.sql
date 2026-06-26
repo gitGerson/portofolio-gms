@@ -15,8 +15,12 @@ create table if not exists public.categories (
   slug        text not null unique,
   name        text not null,
   sort_order  int  not null default 0,
+  image_path  text,            -- bucket path or absolute URL for the category icon
   created_at  timestamptz not null default now()
 );
+
+-- Backfill for databases created before image_path existed.
+alter table public.categories add column if not exists image_path text;
 
 create table if not exists public.brands (
   id          uuid primary key default gen_random_uuid(),

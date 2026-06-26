@@ -6,6 +6,7 @@ type CategoryRow = {
   slug: string;
   name: string;
   sort_order: number;
+  image_path: string | null;
 };
 
 function mapCategory(row: CategoryRow): Category {
@@ -14,6 +15,7 @@ function mapCategory(row: CategoryRow): Category {
     slug: row.slug,
     name: row.name,
     sortOrder: row.sort_order,
+    imagePath: row.image_path,
   };
 }
 
@@ -21,7 +23,7 @@ export async function getCategories(): Promise<Category[]> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("categories")
-    .select("id, slug, name, sort_order")
+    .select("id, slug, name, sort_order, image_path")
     .order("sort_order", { ascending: true });
   if (error) throw error;
   return (data as CategoryRow[]).map(mapCategory);
@@ -33,7 +35,7 @@ export async function getCategoryBySlug(
   const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("categories")
-    .select("id, slug, name, sort_order")
+    .select("id, slug, name, sort_order, image_path")
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw error;

@@ -3,14 +3,19 @@
 -- Run AFTER schema.sql. Re-runnable: upserts on slug.
 -- =============================================================================
 
-insert into public.categories (slug, name, sort_order) values
-  ('data-cable',   'Data Cable',     1),
-  ('adaptor',      'Adaptor',        2),
-  ('charger',      'Charger',        3),
-  ('earphone',     'Earphone',       4),
-  ('otg-splitter', 'OTG & Splitter', 5),
-  ('nas-storage',  'NAS Storage',    6)
-on conflict (slug) do update set name = excluded.name, sort_order = excluded.sort_order;
+-- image_path holds an absolute URL to an open-source (Creative Commons) photo
+-- served by loremflickr.com; ?lock= pins a stable image per category.
+insert into public.categories (slug, name, sort_order, image_path) values
+  ('data-cable',   'Data Cable',     1, 'https://loremflickr.com/200/200/usb,cable?lock=110'),
+  ('adaptor',      'Adaptor',        2, 'https://loremflickr.com/200/200/power,adapter?lock=120'),
+  ('charger',      'Charger',        3, 'https://loremflickr.com/200/200/charger?lock=130'),
+  ('earphone',     'Earphone',       4, 'https://loremflickr.com/200/200/earphone?lock=140'),
+  ('otg-splitter', 'OTG & Splitter', 5, 'https://loremflickr.com/200/200/usb,adapter?lock=150'),
+  ('nas-storage',  'NAS Storage',    6, 'https://loremflickr.com/200/200/server,storage?lock=160')
+on conflict (slug) do update set
+  name       = excluded.name,
+  sort_order = excluded.sort_order,
+  image_path = excluded.image_path;
 
 insert into public.brands (slug, name) values
   ('ugreen', 'UGREEN'),
