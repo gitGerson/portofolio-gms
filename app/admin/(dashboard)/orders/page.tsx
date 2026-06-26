@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { listOrders } from "@/lib/data/orders";
-import { formatRupiah } from "@/lib/format";
 import type { OrderStatus } from "@/lib/data/types";
-import { ORDER_STATUSES, STATUS_LABEL, STATUS_CLASS } from "./status-meta";
+import { ORDER_STATUSES, STATUS_LABEL } from "./status-meta";
+import { OrdersTable } from "./orders-table";
 
 export const dynamic = "force-dynamic";
 
@@ -48,41 +48,16 @@ export default async function AdminOrdersPage({
         ))}
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-line bg-white">
-        {orders.length === 0 ? (
+      {orders.length === 0 ? (
+        <div className="overflow-hidden rounded-2xl border border-line bg-white">
           <p className="p-8 text-center text-sm text-muted">
-            Tidak ada pesanan{filter ? ` dengan status "${STATUS_LABEL[filter]}"` : ""}.
+            Tidak ada pesanan
+            {filter ? ` dengan status "${STATUS_LABEL[filter]}"` : ""}.
           </p>
-        ) : (
-          <ul className="divide-y divide-line">
-            {orders.map((o) => (
-              <li key={o.id}>
-                <Link
-                  href={`/admin/orders/${o.id}`}
-                  className="flex items-center gap-3 p-4 hover:bg-paper"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="font-mono text-[13px] font-bold text-ink">
-                      {o.orderNo}
-                    </div>
-                    <div className="mt-0.5 truncate text-[12.5px] text-muted">
-                      {o.customerName} · {o.items.length} item
-                    </div>
-                  </div>
-                  <span
-                    className={`flex-none rounded-md px-2 py-0.5 text-[11px] font-bold ${STATUS_CLASS[o.status]}`}
-                  >
-                    {STATUS_LABEL[o.status]}
-                  </span>
-                  <div className="hidden w-28 flex-none text-right text-sm font-bold text-forest sm:block">
-                    {formatRupiah(o.total)}
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+        </div>
+      ) : (
+        <OrdersTable orders={orders} />
+      )}
     </div>
   );
 }

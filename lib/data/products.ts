@@ -15,20 +15,24 @@ type ProductRow = {
   highlights: string[] | null;
   image_path: string | null;
   image_tag: string | null;
+  category_id: string | null;
+  brand_id: string | null;
   categories: { slug: string; name: string } | null;
   brands: { name: string } | null;
 };
 
 const SELECT =
-  "id, slug, name, price, old_price, stock, rating, sold, description, highlights, image_path, image_tag, categories(slug, name), brands(name)";
+  "id, slug, name, price, old_price, stock, rating, sold, description, highlights, image_path, image_tag, category_id, brand_id, categories(slug, name), brands(name)";
 
 export function mapProduct(row: ProductRow): Product {
   return {
     id: row.id,
     slug: row.slug,
     name: row.name,
+    categoryId: row.category_id,
     categorySlug: row.categories?.slug ?? null,
     categoryName: row.categories?.name ?? null,
+    brandId: row.brand_id,
     brandName: row.brands?.name ?? null,
     price: row.price,
     oldPrice: row.old_price,

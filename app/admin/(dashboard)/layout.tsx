@@ -19,20 +19,32 @@ export default async function AdminLayout({
     <div className="min-h-dvh bg-board">
       <div className="flex flex-col md:flex-row">
         {/* Sidebar */}
-        <aside className="flex flex-col gap-5 border-b border-line bg-white p-5 md:min-h-dvh md:w-60 md:flex-none md:border-b-0 md:border-r">
-          <Link href="/admin" className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-forest text-base font-extrabold text-gold">
-              {STORE.name.charAt(0).toUpperCase()}
-            </span>
-            <span>
-              <span className="block text-sm font-extrabold leading-none text-ink">
-                {STORE.name.toUpperCase()}
+        <aside className="flex flex-col gap-4 border-b border-line bg-white p-4 md:min-h-dvh md:w-60 md:flex-none md:gap-5 md:border-b-0 md:border-r md:p-5">
+          <div className="flex items-center justify-between gap-3">
+            <Link href="/admin" className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-forest text-base font-extrabold text-gold">
+                {STORE.name.charAt(0).toUpperCase()}
               </span>
-              <span className="font-mono text-[10px] tracking-wider text-faint">
-                ADMIN
+              <span>
+                <span className="block text-sm font-extrabold leading-none text-ink">
+                  {STORE.name.toUpperCase()}
+                </span>
+                <span className="font-mono text-[10px] tracking-wider text-faint">
+                  ADMIN
+                </span>
               </span>
-            </span>
-          </Link>
+            </Link>
+
+            {/* Mobile sign out */}
+            <form action={signOutAction} className="md:hidden">
+              <button
+                type="submit"
+                className="rounded-[10px] border border-line px-3 py-1.5 text-[13px] font-semibold text-muted"
+              >
+                Keluar
+              </button>
+            </form>
+          </div>
 
           <AdminNav />
 
@@ -49,20 +61,10 @@ export default async function AdminLayout({
               </button>
             </form>
           </div>
-
-          {/* Mobile sign out */}
-          <form action={signOutAction} className="md:hidden">
-            <button
-              type="submit"
-              className="rounded-[10px] border border-line px-3 py-2 text-[13px] font-semibold text-muted"
-            >
-              Keluar
-            </button>
-          </form>
         </aside>
 
         {/* Content */}
-        <main className="flex-1 p-5 md:p-8">
+        <main className="min-w-0 flex-1 p-5 md:p-8">
           <Link
             href="/"
             target="_blank"

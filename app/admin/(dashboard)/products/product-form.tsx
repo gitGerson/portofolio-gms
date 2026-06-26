@@ -34,7 +34,7 @@ export function ProductForm({
   const currentImage = product ? productImageUrl(product.imagePath) : null;
 
   return (
-    <form action={formAction} className="max-w-2xl">
+    <form action={formAction} className="max-w-5xl">
       <div className="grid gap-4 rounded-2xl border border-line bg-white p-5 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label className={LABEL}>Nama Produk *</label>

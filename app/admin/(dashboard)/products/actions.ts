@@ -155,3 +155,99 @@ export async function deleteProductAction(id: string): Promise<void> {
   revalidatePath("/");
   revalidatePath("/admin/products");
 }
+
+/**
+ * Allowlist of inline-editable product fields. Maps the camelCase key sent by
+ * the table to its DB column + a coercer. Anything not listed is rejected, so
+ * the table can never write arbitrary columns.
+ */
+const PRODUCT_FIELDS: Record<
+  string,
+  { column: string; coerce: (v: unknown) => unknown }
+> = {
+  name: { column: "name", coerce: (v) => String(v ?? "").trim() },
+  slug: { column: "slug", coerce: (v) => slugify(String(v ?? "")) },
+  price: { column: "price", coerce: (v) => toIntOrNull(v as string) ?? 0 },
+  oldPrice: { column: "old_price", coerce: (v) => toIntOrNull(v as string) },
+  stock: { column: "stock", coerce: (v) => toIntOrNull(v as string) ?? 0 },
+  categoryId: {
+    column: "category_id",
+    coerce: (v) => (String(v ?? "") || null) as string | null,
+  },
+  brandId: {
+    column: "brand_id",
+    coerce: (v) => (String(v ?? "") || null) as string | null,
+  },
+  rating: { column: "rating", coerce: (v) => toFloatOrNull(v as string) },
+  sold: { column: "sold", coerce: (v) => toIntOrNull(v as string) ?? 0 },
+  imageTag: {
+    column: "image_tag",
+    coerce: (v) => String(v ?? "").trim() || null,
+  },
+};
+
+export type InlineResult = { error?: string };
+
+/** Inline single-field update from the products table. */
+export async function updateProductField(
+  id: string,
+  patch: Record<string, unknown>,
+): Promise<InlineResult> {
+  if (!(await getAdminUser())) return { error: "Tidak punya akses." };
+
+  const update: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(patch)) {
+    const field = PRODUCT_FIELDS[key];
+    if (!field) return { error: `Field tidak diizinkan: ${key}` };
+    update[field.column] = field.coerce(value);
+  }
+  if (Object.keys(update).length === 0) return { error: "Tidak ada perubahan." };
+  if ("name" in update && !update.name) {
+    return { error: "Nama produk wajib diisi." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("products").update(update).eq("id", id);
+  if (error) {
+    return {
+      error: error.message.includes("duplicate")
+        ? "Slug sudah dipakai produk lain."
+        : error.message,
+    };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin/products");
+  return {};
+}
+
+/** Inline image replacement from the products table. Returns the new path. */
+export async function updateProductImage(
+  id: string,
+  slug: string,
+  formData: FormData,
+): Promise<{ path?: string; error?: string }> {
+  if (!(await getAdminUser())) return { error: "Tidak punya akses." };
+  const file = formData.get("image");
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: "Tidak ada gambar." };
+  }
+
+  const supabase = await createClient();
+  let path: string;
+  try {
+    path = await uploadImage(supabase, slug || "produk", file);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Gagal upload gambar." };
+  }
+
+  const { error } = await supabase
+    .from("products")
+    .update({ image_path: path })
+    .eq("id", id);
+  if (error) return { error: error.message };
+
+  revalidatePath("/");
+  revalidatePath("/admin/products");
+  return { path };
+}

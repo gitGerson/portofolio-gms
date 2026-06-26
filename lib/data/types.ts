@@ -19,8 +19,10 @@ export type Product = {
   id: string;
   slug: string;
   name: string;
+  categoryId: string | null;
   categorySlug: string | null;
   categoryName: string | null;
+  brandId: string | null;
   brandName: string | null;
   price: number;
   oldPrice: number | null;

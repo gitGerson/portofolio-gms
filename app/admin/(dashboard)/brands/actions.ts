@@ -108,3 +108,67 @@ export async function deleteBrandAction(id: string): Promise<void> {
   revalidatePath("/category");
   revalidatePath("/admin/brands");
 }
+
+export type InlineResult = { error?: string };
+
+/** Inline single-field update from the brands table (name → also reslugs). */
+export async function updateBrandField(
+  id: string,
+  patch: Record<string, unknown>,
+): Promise<InlineResult> {
+  if (!(await getAdminUser())) return { error: "Tidak punya akses." };
+
+  const update: Record<string, unknown> = {};
+  if ("name" in patch) {
+    const name = String(patch.name ?? "").trim();
+    if (!name) return { error: "Nama brand wajib diisi." };
+    update.name = name;
+    update.slug = slugify(name);
+  }
+  // Only `name` is inline-editable; reject anything else.
+  for (const key of Object.keys(patch)) {
+    if (key !== "name") return { error: `Field tidak diizinkan: ${key}` };
+  }
+  if (Object.keys(update).length === 0) return { error: "Tidak ada perubahan." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("brands").update(update).eq("id", id);
+  if (error) return { error: dupMessage(error.message) };
+
+  revalidatePath("/");
+  revalidatePath("/category");
+  revalidatePath("/admin/brands");
+  return {};
+}
+
+/** Inline logo replacement from the brands table. Returns the new path. */
+export async function updateBrandImage(
+  id: string,
+  slug: string,
+  formData: FormData,
+): Promise<{ path?: string; error?: string }> {
+  if (!(await getAdminUser())) return { error: "Tidak punya akses." };
+  const file = formData.get("logo");
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: "Tidak ada gambar." };
+  }
+
+  const supabase = await createClient();
+  let path: string;
+  try {
+    path = await uploadLogo(supabase, slug || "brand", file);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Gagal upload logo." };
+  }
+
+  const { error } = await supabase
+    .from("brands")
+    .update({ logo_image: path })
+    .eq("id", id);
+  if (error) return { error: error.message };
+
+  revalidatePath("/");
+  revalidatePath("/category");
+  revalidatePath("/admin/brands");
+  return { path };
+}
